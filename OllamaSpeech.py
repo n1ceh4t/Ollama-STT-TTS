@@ -11,6 +11,8 @@ RESPONSE_ARRAY = []
 RESPONSE = '' 
 # Define the library to use here
 LIBRARY = "llama3" 
+# Define the endpoint URL hosting Ollama
+URL = 'http://127.0.0.1:11434/api/generate'
  
 # Initialize the voice recognizer 
 r = sr.Recognizer() 
@@ -53,9 +55,6 @@ while(1):
             else:
                 # Assumes you are continuing conversation from previous response
                 PROMPT = ''
-            
-            # Endpoint for OLLAMA
-            url = 'http://127.0.0.1:11434/api/generate'
           
             # Initialize JSON object
             myobj = {
@@ -64,7 +63,7 @@ while(1):
             }
           
             # Perform post request
-            x = requests.post(url, json = myobj)
+            x = requests.post(URL, json = myobj)
             
             # Response is sent one word at a time. The following lines extract the response and add them to a list for printing.
             # If you are looking for speed statistics/metrics, this can be modified.
