@@ -32,10 +32,7 @@ count = 0
 # Loop infinitely 
 SpeakText("Hello, how may I assist you today?")
 while(1):    
-     
     try:
-       
-         
         # use the default microphone as source for input.
         with sr.Microphone() as source2:
              
