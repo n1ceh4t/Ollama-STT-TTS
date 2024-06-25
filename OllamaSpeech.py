@@ -26,8 +26,8 @@ def SpeakText(command):
     engine.say(command) 
     engine.runAndWait()
    
-
-count = 0 # Counter to identify first run in loop 
+# Counter to identify first run in loop 
+count = 0 
      
 # Loop infinitely 
 SpeakText("Hello, how may I assist you today?")
