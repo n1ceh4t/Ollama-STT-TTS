@@ -9,4 +9,5 @@ USAGE:
 
 1. Run ollama application locally
 2. Change value of URL variable to your endpoint (likely not needed.)
-3. 'python OllamaSpeech.py'
+3. Define the model you wish to use in OllamaSpeech.py
+4. 'python OllamaSpeech.py'
