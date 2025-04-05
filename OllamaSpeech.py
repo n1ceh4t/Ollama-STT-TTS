@@ -5,7 +5,7 @@ import pyttsx3
 import misc
 from random import randrange
 import subprocess
-# Define the library to use here
+# Define the LLM model to use here
 LIBRARY = "wizardlm2:7b" 
 
 # Go-word.
@@ -25,7 +25,7 @@ def runCommands(cmd, text):
         title = text.replace("play","")
         SpeakText("Playing " + title)
         proc = subprocess.Popen("yt /" + title + ",d,1", shell=True)
-    elif (cmd == "stop"):
+    elif (cmd == "stop"): # does not work; proc is unassigned before calling
         proc.kill()
 
 def SpeakText(command):
@@ -48,20 +48,21 @@ def listening():
                 # Listen for the user's input 
                 audio2 = r.listen(source2)
                     
-                # Uses google to recognize audio
+                # Uses vosk to recognize audio; can be altered for other methods
                 MyText = r.recognize_vosk(audio2)
                 MyText = json.loads(MyText.lower())["text"]
                 print(MyText)
 
+                # Check if command trigger words are in the transcribed text
                 for i in misc.commands:
-                    if (i in MyText):
+                    if (i in MyText): # if so, run the command
                         runCommands(i, MyText)
                         MyText = ""
                     else:
                         continue
 
-                if (STOPPHRASE in MyText):
-                    SpeakText(misc.part[randrange(0,len(misc.part)-1)])
+                if (STOPPHRASE in MyText): # Check for stop word
+                    SpeakText(misc.part[randrange(0,len(misc.part)-1)]) # Speak departing message
                     break
                 elif (MyText == ""):
                     break
@@ -71,21 +72,18 @@ def listening():
                 # Load chat history from file
                 with open('history.json') as f:
                     HISTORY = json.load(f)
-                # print("History: " + str(HISTORY["history"]))
-                # print("MyText: " + MyText)
-                # print("Appending MyText to history...")
+                    
                 new_entry = {"role": "user", "content": MyText}
                 HISTORY["history"].append(new_entry)
                 # Endpoint for OLLAMA
                 url = 'http://127.0.0.1:11434/api/chat'
 
-                # Initialize JSON object
+                # Initialize JSON object with history to send to OLLAMA
                 myobj = {
                 "model": LIBRARY,
                 "messages": HISTORY["history"],
-                "stream": False,
+                "stream": False, # This tells OLLAMA to return the whole response, not one character at a time
                 }
-                # print(str(myobj))
 
                 # Perform post request
                 x = requests.post(url, json = myobj)
@@ -94,6 +92,7 @@ def listening():
                 RESPONSE = json.loads(x.text)["message"]
                 new_entry = RESPONSE
                 print(RESPONSE)
+                # add to chat history
                 HISTORY["history"].append(new_entry)
 
                 # Open and append or create log file
@@ -101,9 +100,10 @@ def listening():
                 f.write('Prompt: \n' + MyText + '\n Response: \n' + x.text + '\n')
                 f.close()
 
+                # update history.json
                 with open('history.json', 'w', encoding='utf-8') as f:
                     json.dump(HISTORY, f, ensure_ascii=False, indent=4)
-
+                
                 # Use text-to-speech to speak the response
 
                 SpeakText(RESPONSE["content"])
@@ -117,7 +117,6 @@ def listening():
 
 def main():
     # Loop infinitely 
-    # SpeakText("Hello, how may I assist you today?")
     while(1):    
         try:
             # use the default microphone as source for input.
